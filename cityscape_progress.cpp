@@ -128,6 +128,46 @@ void id8002()
     glVertex2f(150.0f, 43.0f);
     glEnd();
 }
+void id8003()
+{ // vertical road divider 1
+    glBegin(GL_QUADS);
+    glColor3ub(251, 253, 250);
+    glVertex2f(75.5f, 80.0f);
+    glVertex2f(76.5f, 80.0f);
+    glVertex2f(76.5f, 44.0f);
+    glVertex2f(75.5f, 44.0f);
+    glEnd();
+}
+void id8004()
+{ // vertical road divider 2
+    glBegin(GL_QUADS);
+    glColor3ub(251, 253, 250);
+    glVertex2f(75.0f, 19.0f);
+    glVertex2f(76.0f, 19.0f);
+    glVertex2f(76.0f, 0.0f);
+    glVertex2f(75.0f, 0.0f);
+    glEnd();
+}
+void id8005()
+{ // horizontal road divider 1
+    glBegin(GL_QUADS);
+    glColor3ub(251, 253, 250);
+    glVertex2f(0.0f, 31.0f);
+    glVertex2f(58.0f, 31.0f);
+    glVertex2f(58.0f, 32.0f);
+    glVertex2f(0.0f, 32.0f);
+    glEnd();
+}
+void id8006()
+{ // horizontal road divider 2
+    glBegin(GL_QUADS);
+    glColor3ub(251, 253, 250);
+    glVertex2f(95.0f, 31.0f);
+    glVertex2f(150.0f, 31.0f);
+    glVertex2f(150.0f, 32.0f);
+    glVertex2f(95.0f, 32.0f);
+    glEnd();
+}
 
 void id1001()
 { // top left footpath (left)
@@ -964,9 +1004,13 @@ void display()
 
     // vertical road id8001
     id8001();
+    id8003(); // divider
+    id8004(); // divider
 
     // horizontal road id8002
     id8002();
+    id8005(); // divider
+    id8006(); // divider
 
     // car1 id7001
     glPushMatrix();
