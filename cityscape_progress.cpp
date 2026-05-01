@@ -12,11 +12,13 @@ float _car7004Move = 0.0f;
 float _car7005Move = 0.0f;
 float _wheelAngle = 0.0f;
 
-int trafficLight = 2;  // 0=red, 1=yellow, 2=GREEN
+int trafficLight = 2; // 0=red, 1=yellow, 2=green
 
-float speed = 1.0f;   //car speed for mouse
+float speed = 1.0f; // car speed for mouse
 
 bool isNight = false;
+bool isRaining = false;
+bool isEmergency = false;
 
 bool portalSpeed = false;
 float portalScale = 1.0f;
@@ -30,20 +32,23 @@ void circle(float radius, float xc, float yc, float r, float g, float b)
         glColor3ub(r, g, b);
         float pi = 3.1416;
         float A = (i * 2 * pi) / 200;
-        float r = radius;
-        float x = r * cos(A);
-        float y = r * sin(A);
+        float x = radius * cos(A);
+        float y = radius * sin(A);
         glVertex2f(x + xc, y + yc);
     }
     glEnd();
 }
-void renderText(float x, float y, const char* text) {
+
+void renderText(float x, float y, const char *text)
+{
     glRasterPos2f(x, y);
-    for (const char* c = text; *c != '\0'; c++) {
+    for (const char *c = text; *c != '\0'; c++)
+    {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
 }
-void drawParkBench(){ //bench1 id1111
+void drawParkBench()
+{ // bench1 id1111
     glBegin(GL_QUADS);
     glColor3ub(155, 126, 105);
     glVertex2f(28.0f, 4.0f);
@@ -52,7 +57,7 @@ void drawParkBench(){ //bench1 id1111
     glVertex2f(32.0f, 4.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(28.0f, 4.0f);
     glVertex2f(28.0f, 5.0f);
     glVertex2f(32.0f, 5.0f);
@@ -66,7 +71,7 @@ void drawParkBench(){ //bench1 id1111
     glVertex2f(32.5f, 3.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(27.5f, 3.0f);
     glVertex2f(28.0f, 4.0f);
     glVertex2f(32.0f, 4.0f);
@@ -80,7 +85,7 @@ void drawParkBench(){ //bench1 id1111
     glVertex2f(28.0f, 3.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(27.5f, 3.0f);
     glVertex2f(27.5f, 2.0f);
     glVertex2f(28.0f, 2.0f);
@@ -94,23 +99,22 @@ void drawParkBench(){ //bench1 id1111
     glVertex2f(32.0f, 3.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(32.5f, 3.0f);
     glVertex2f(32.5f, 2.0f);
     glVertex2f(32.0f, 2.0f);
     glVertex2f(32.0f, 3.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(28.0f, 4.5f);
     glVertex2f(32.0f, 4.5f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(27.75f, 3.5f);
     glVertex2f(32.25f, 3.5f);
     glEnd();
-
 }
 void drawWheel(float cx, float cy)
 {
@@ -128,13 +132,39 @@ void drawWheel(float cx, float cy)
 
     glPopMatrix();
 }
+void drawRain()
+{
+    if (!isRaining)
+        return;
 
+    glColor3ub(180, 180, 255);
+    glBegin(GL_LINES);
+
+    for (int i = 0; i < 100; i++)
+    {
+        float x = rand() % 140;
+        float y = rand() % 100;
+
+        glVertex2f(x, y);
+        glVertex2f(x + 0.5f, y - 2);
+    }
+
+    glEnd();
+}
 void id0001()
 { // Sky (Day/Night) id 0001
-    if (isNight)
-        glColor3ub(10, 10, 40); // dark blue night
+    if (isRaining)
+    {
+        glColor3ub(90, 100, 110); // rain
+    }
+    else if (isNight)
+    {
+        glColor3ub(20, 20, 50); // night
+    }
     else
-        glColor3ub(170, 216, 250); // day sky
+    {
+        glColor3ub(170, 216, 250); // day
+    }
 
     // top right sky
     glBegin(GL_QUADS);
@@ -185,8 +215,10 @@ void id9002()
     circle(2, 41, 77, 233, 243, 252);
     circle(2, 45, 77, 233, 243, 252);
 }
-void id0009(){
-    if (!isNight){
+void id0009()
+{
+    if (!isNight)
+    {
         return;
     }
 
@@ -211,7 +243,6 @@ void id0009(){
     glVertex2f(146.0f, 66.0f);
     glEnd();
 }
-
 
 // Road id 8000
 void id8001()
@@ -298,6 +329,15 @@ void id1002()
     glVertex2f(66.0f, 80.0f);
     glVertex2f(66.0f, 43.0f);
     glEnd();
+    glBegin(GL_LINE_LOOP);
+    glColor3ub(0, 0, 0);
+    glVertex2f(0.0f, 43.0f);
+    glVertex2f(0.0f, 49.0f);
+    glVertex2f(60.5f, 49.0f);
+    glVertex2f(60.5f, 80.0f);
+    glVertex2f(66.0f, 80.0f);
+    glVertex2f(66.0f, 43.0f);
+    glEnd();
 }
 void id1003()
 { // top right footpath (right)
@@ -317,7 +357,7 @@ void id1003()
     glVertex2f(117.0f, 45.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(113.0f, 45.0f);
     glVertex2f(113.0f, 47.0f);
     glVertex2f(117.0f, 47.0f);
@@ -331,7 +371,7 @@ void id1003()
     glVertex2f(129.0f, 45.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(125.0f, 45.0f);
     glVertex2f(125.0f, 47.0f);
     glVertex2f(129.0f, 47.0f);
@@ -347,6 +387,15 @@ void id1004()
     glVertex2f(92.0f, 49.0f);
     glVertex2f(92.0f, 80.0f);
     glVertex2f(86.0f, 80.0f);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glColor3ub(0, 0, 0);
+    glVertex2f(86.0f, 43.0f);
+    glVertex2f(86.0f, 80.0f);
+    glVertex2f(92.0f, 80.0f);
+    glVertex2f(92.0f, 49.0f);
+    glVertex2f(150.0f, 49.0f);
+    glVertex2f(150.0f, 43.0f);
     glEnd();
 }
 void id1005()
@@ -370,6 +419,15 @@ void id1006()
     glVertex2f(97.0f, 0.0f);
     glVertex2f(86.0f, 0.0f);
     glEnd();
+    glBegin(GL_LINE_LOOP);
+    glColor3ub(0, 0, 0);
+    glVertex2f(86.0f, 20.0f);
+    glVertex2f(86.0f, 0.0f);
+    glVertex2f(97.0f, 0.0f);
+    glVertex2f(97.0f, 15.0f);
+    glVertex2f(150.0f, 15.0f);
+    glVertex2f(150.0f, 20.0f);
+    glEnd();
 }
 void id1007()
 { // bottom left footpath (left)
@@ -391,6 +449,15 @@ void id1008()
     glVertex2f(66.0f, 0.0f);
     glVertex2f(66.0f, 15.0f);
     glVertex2f(59.0f, 15.0f);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glColor3ub(0, 0, 0);
+    glVertex2f(66.0f, 20.0f);
+    glVertex2f(66.0f, 0.0f);
+    glVertex2f(59.0f, 0.0f);
+    glVertex2f(0.0f, 15.0f);
+    glVertex2f(0.0f, 20.0f);
+    glVertex2f(66.0f, 20.0f);
     glEnd();
 }
 
@@ -480,7 +547,7 @@ void id0003()
     glVertex2f(93.0f, 25.0f);
     glVertex2f(93.0f, 24.0f);
     glEnd();
-}\
+}
 void id0004()
 { // Energy portal id 0004
     // portal
@@ -489,51 +556,58 @@ void id0004()
     circle(2, 138, 7, 1, 204, 207);
     circle(1, 138, 7, 255, 255, 255);
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(138,7);
-    glVertex2f(144,7);
+    glColor3ub(0, 255, 255);
+    glVertex2f(138, 7);
+    glVertex2f(144, 7);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(132,7);
-    glVertex2f(138,7);
+    glColor3ub(0, 255, 255);
+    glVertex2f(132, 7);
+    glVertex2f(138, 7);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(138,7);
-    glVertex2f(138,1);
+    glColor3ub(0, 255, 255);
+    glVertex2f(138, 7);
+    glVertex2f(138, 1);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(138,7);
-    glVertex2f(138,13);
+    glColor3ub(0, 255, 255);
+    glVertex2f(138, 7);
+    glVertex2f(138, 13);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(134,11);
-    glVertex2f(135,10);
+    glColor3ub(0, 255, 255);
+    glVertex2f(134, 11);
+    glVertex2f(135, 10);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(134,3);
-    glVertex2f(135,4);
+    glColor3ub(0, 255, 255);
+    glVertex2f(134, 3);
+    glVertex2f(135, 4);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(141,4);
-    glVertex2f(142,3);
+    glColor3ub(0, 255, 255);
+    glVertex2f(141, 4);
+    glVertex2f(142, 3);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,255,255);
-    glVertex2f(141,10);
-    glVertex2f(142,11);
+    glColor3ub(0, 255, 255);
+    glVertex2f(141, 10);
+    glVertex2f(142, 11);
     glEnd();
 }
 void id0005()
 { // Park id 0005
     // bottom left garden / park
-    glBegin(GL_QUADS); // plants
+    glBegin(GL_QUADS); // grass
     glColor3ub(123, 176, 53);
+    glVertex2f(0.0f, 0.0f);
+    glVertex2f(0.0f, 15.0f);
+    glVertex2f(59.0f, 15.0f);
+    glVertex2f(59.0f, 0.0f);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glColor3ub(0, 0, 0);
     glVertex2f(0.0f, 0.0f);
     glVertex2f(0.0f, 15.0f);
     glVertex2f(59.0f, 15.0f);
@@ -568,7 +642,7 @@ void id0005()
     glVertex2f(47.0f, 0.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(10.0f, 10.0f);
     glVertex2f(8.0f, 8.0f);
     glVertex2f(8.0f, 0.0f);
@@ -581,7 +655,6 @@ void id0005()
     glVertex2f(40.0f, 10.0f);
     glVertex2f(10.0f, 10.0f);
     glEnd();
-
 
     glBegin(GL_POLYGON); // waterbody
     glColor3ub(81, 129, 167);
@@ -615,7 +688,7 @@ void id0005()
     glVertex2f(25.0f, 7.0f);
     glVertex2f(23.0f, 5.0f);
     glEnd();
-    //Fence
+    // Fence
     glBegin(GL_QUADS);
     glColor3ub(96, 72, 52);
     glVertex2f(0.0f, 15.5f);
@@ -700,7 +773,7 @@ void id0005()
     glVertex2f(55.0f, 18.0f);
     glVertex2f(55.0f, 14.0f);
     glEnd();
-    drawParkBench(); //bench1 id1111
+    drawParkBench(); // bench1 id1111
     // bush1
     circle(1, 34, 8, 79, 110, 79);
     circle(1, 34.5, 9, 81, 110, 78);
@@ -1102,34 +1175,34 @@ void id2003()
         glColor3ub(255, 240, 150); // night
     else
         glColor3ub(86, 104, 116); // day
-    glVertex2f(54.0f, 60.0f);
-    glVertex2f(54.0f, 62.0f);
-    glVertex2f(56.0f, 62.0f);
-    glVertex2f(56.0f, 60.0f);
+    glVertex2f(55.0f, 60.0f);
+    glVertex2f(55.0f, 62.0f);
+    glVertex2f(57.0f, 62.0f);
+    glVertex2f(57.0f, 60.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
     glColor3ub(0, 0, 0);
-    glVertex2f(54.0f, 60.0f);
-    glVertex2f(54.0f, 62.0f);
-    glVertex2f(56.0f, 62.0f);
-    glVertex2f(56.0f, 60.0f);
+    glVertex2f(55.0f, 60.0f);
+    glVertex2f(55.0f, 62.0f);
+    glVertex2f(57.0f, 62.0f);
+    glVertex2f(57.0f, 60.0f);
     glEnd();
     glBegin(GL_QUADS); // window bottom-right
     if (isNight)
         glColor3ub(255, 240, 150); // night
     else
         glColor3ub(86, 104, 116); // day
-    glVertex2f(54.0f, 56.0f);
-    glVertex2f(54.0f, 58.0f);
-    glVertex2f(56.0f, 58.0f);
-    glVertex2f(56.0f, 56.0f);
+    glVertex2f(55.0f, 56.0f);
+    glVertex2f(55.0f, 58.0f);
+    glVertex2f(57.0f, 58.0f);
+    glVertex2f(57.0f, 56.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
     glColor3ub(0, 0, 0);
-    glVertex2f(54.0f, 56.0f);
-    glVertex2f(54.0f, 58.0f);
-    glVertex2f(56.0f, 58.0f);
-    glVertex2f(56.0f, 56.0f);
+    glVertex2f(55.0f, 56.0f);
+    glVertex2f(55.0f, 58.0f);
+    glVertex2f(57.0f, 58.0f);
+    glVertex2f(57.0f, 56.0f);
     glEnd();
     glBegin(GL_QUADS); // door
     glColor3ub(179, 219, 237);
@@ -1146,8 +1219,9 @@ void id2003()
     glVertex2f(54.0f, 49.0f);
     glEnd();
 }
-void id2004(){ //modern high building
-    //building 4
+void id2004()
+{ // modern high building
+    // building 4
     glBegin(GL_QUADS); // wall
     glColor3ub(111, 123, 131);
     glVertex2f(107.5f, 49.0f);
@@ -1214,63 +1288,63 @@ void id2004(){ //modern high building
     glVertex2f(135.0f, 50.0f);
     glEnd();
     glLineWidth(2.5f);
-    glBegin(GL_LINES); //window borders
-    glColor3ub(0,0,0);
+    glBegin(GL_LINES); // window borders
+    glColor3ub(0, 0, 0);
     glVertex2f(115.0f, 70.0f);
     glVertex2f(115.0f, 75.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(120.0f, 70.0f);
     glVertex2f(120.0f, 75.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(125.0f, 70.0f);
     glVertex2f(125.0f, 75.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(130.0f, 70.0f);
     glVertex2f(130.0f, 75.0f);
     glEnd();
-    glBegin(GL_LINES); //window borders
-    glColor3ub(0,0,0);
+    glBegin(GL_LINES); // window borders
+    glColor3ub(0, 0, 0);
     glVertex2f(115.0f, 60.0f);
     glVertex2f(115.0f, 65.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(120.0f, 60.0f);
     glVertex2f(120.0f, 65.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(125.0f, 60.0f);
     glVertex2f(125.0f, 65.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(130.0f, 60.0f);
     glVertex2f(130.0f, 65.0f);
     glEnd();
-    glBegin(GL_LINES); //window borders
-    glColor3ub(0,0,0);
+    glBegin(GL_LINES); // window borders
+    glColor3ub(0, 0, 0);
     glVertex2f(115.0f, 50.0f);
     glVertex2f(115.0f, 55.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(120.0f, 50.0f);
     glVertex2f(120.0f, 55.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(125.0f, 50.0f);
     glVertex2f(125.0f, 55.0f);
     glEnd();
     glBegin(GL_LINES);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(130.0f, 50.0f);
     glVertex2f(130.0f, 55.0f);
     glEnd();
@@ -1307,11 +1381,7 @@ void id2004(){ //modern high building
     glVertex2f(125.0f, 56.0f);
     glVertex2f(125.0f, 49.0f);
     glEnd();
-
 }
-
-
-
 
 // Trees id 3000
 void id3001()
@@ -1373,13 +1443,15 @@ void id3002()
     circle(2, 127, 65, 74, 130, 79);
     circle(2, 130, 65, 97, 152, 58);
 }
-void id3003(){ //bottom left tree
+void id3003()
+{ // bottom left tree
     glPushMatrix();
     glTranslatef(-76, -40, 0);
     id3001();
     glPopMatrix();
 }
-void id3004(){ //bottom left tree
+void id3004()
+{ // bottom left tree
     glPushMatrix();
     glTranslatef(-76, -40, 0);
     id3002();
@@ -1437,7 +1509,7 @@ void id4002()
 { // Street lights id 4002
 
     glPushMatrix();
-    glTranslatef(26.0f,35.5f,0.0f);
+    glTranslatef(26.0f, 35.5f, 0.0f);
     // Street lights id 4001
     // lamp
     glBegin(GL_QUADS);
@@ -1729,9 +1801,10 @@ void id5003()
     glVertex2f(34.0f, 60.0f);
     glVertex2f(34.0f, 63.0f);
     glVertex2f(35.0f, 63.0f);
-    glVertex2f(35.0f, 60.0f);;
+    glVertex2f(35.0f, 60.0f);
+    ;
     glEnd();
-    circle(1,34.5,63.5,112, 113, 115);
+    circle(1, 34.5, 63.5, 112, 113, 115);
     glBegin(GL_QUADS); // wall
     glColor3ub(114, 91, 78);
     glVertex2f(32.0f, 49.0f);
@@ -1915,9 +1988,9 @@ void id5004()
 }
 void id5005()
 { // shop5
-    // shop5
+    // shop5 //hospital
     glBegin(GL_QUADS); // roof
-    glColor3ub(156, 155, 160);
+    glColor3ub(233, 233, 233);
     glVertex2f(109.0f, 14.0f);
     glVertex2f(109.0f, 19.0f);
     glVertex2f(125.5f, 19.0f);
@@ -1974,7 +2047,7 @@ void id5005()
     glVertex2f(122.5f, 17.5f);
     glEnd();
     glBegin(GL_QUADS); // wall
-    glColor3ub(98, 96, 97);
+    glColor3ub(226, 226, 227);
     glVertex2f(109.0f, 0.0f);
     glVertex2f(109.0f, 14.0f);
     glVertex2f(125.5f, 14.0f);
@@ -1988,7 +2061,7 @@ void id5005()
     glVertex2f(125.5f, 0.0f);
     glEnd();
     glBegin(GL_QUADS); // banner
-    glColor3ub(67, 94, 149);
+    glColor3ub(97, 104, 112);
     glVertex2f(110.0f, 10.0f);
     glVertex2f(110.0f, 13.0f);
     glVertex2f(124.5f, 13.0f);
@@ -2074,24 +2147,23 @@ void id6001()
     glVertex2f(63.0f, 51.5f);
     glEnd();
 
-    //red
+    // red
     if (trafficLight == 0)
         circle(0.5, 63.8, 55.3, 255, 0, 0);
     else
         circle(0.5, 63.8, 55.3, 60, 0, 0);
 
-    //yellow
+    // yellow
     if (trafficLight == 1)
         circle(0.5, 63.8, 53.9, 255, 255, 0);
     else
         circle(0.5, 63.8, 53.9, 80, 80, 0);
 
-    //green
+    // green
     if (trafficLight == 2)
         circle(0.5, 63.8, 52.5, 0, 255, 0);
     else
         circle(0.5, 63.8, 52.5, 0, 80, 0);
-
 }
 void id6002()
 { // Traffic signal id 6002
@@ -2113,19 +2185,19 @@ void id6002()
     glVertex2f(63.0f, 56.0f);
     glVertex2f(63.0f, 51.5f);
     glEnd();
-    //red
+    // red
     if (trafficLight == 0)
         circle(0.5, 63.8, 55.3, 255, 0, 0);
     else
         circle(0.5, 63.8, 55.3, 60, 0, 0);
 
-    //yellow
+    // yellow
     if (trafficLight == 1)
         circle(0.5, 63.8, 53.9, 255, 255, 0);
     else
         circle(0.5, 63.8, 53.9, 80, 80, 0);
 
-    //green
+    // green
     if (trafficLight == 2)
         circle(0.5, 63.8, 52.5, 0, 255, 0);
     else
@@ -2133,9 +2205,6 @@ void id6002()
 
     glPopMatrix();
 }
-
-
-
 
 // Cars id 7000
 void id7001()
@@ -2170,7 +2239,7 @@ void id7001()
 }
 void id7002()
 { // car2
-    // car2
+    // car2 //ambulance
     glBegin(GL_QUADS);
     glColor3ub(129, 35, 36);
     glVertex2f(70.0f, 55.0f);
@@ -2196,6 +2265,20 @@ void id7002()
     glVertex2f(70.0f, 55.5f);
     glVertex2f(73.0f, 55.5f);
     glVertex2f(73.0f, 55.0f);
+    glEnd();
+    glBegin(GL_QUADS);
+    glColor3ub(255, 255, 255);
+    glVertex2f(70.5f, 59.0f);
+    glVertex2f(70.5f, 59.5f);
+    glVertex2f(72.5f, 59.5f);
+    glVertex2f(72.5f, 59.0f);
+    glEnd();
+    glBegin(GL_QUADS);
+    glColor3ub(255, 255, 255);
+    glVertex2f(71.25f, 60.25f);
+    glVertex2f(71.25f, 58.25f);
+    glVertex2f(71.75f, 58.25f);
+    glVertex2f(71.75f, 60.25f);
     glEnd();
 }
 void id7003()
@@ -2257,7 +2340,7 @@ void id7003()
     // wheel
     drawWheel(14.5, 36.5);
     drawWheel(21, 36.5);
-    //headlight
+    // headlight
     glBegin(GL_QUADS);
     if (isNight)
         glColor3ub(255, 240, 150); // night
@@ -2269,7 +2352,7 @@ void id7003()
     glVertex2f(13.0f, 38.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(12.5f, 38.0f);
     glVertex2f(12.5f, 37.5f);
     glVertex2f(13.0f, 37.5f);
@@ -2338,7 +2421,7 @@ void id7004()
     // wheel
     drawWheel(14.5, 36.5);
     drawWheel(21, 36.5);
-    //headlight
+    // headlight
     glBegin(GL_QUADS);
     if (isNight)
         glColor3ub(255, 240, 150); // night
@@ -2350,18 +2433,17 @@ void id7004()
     glVertex2f(13.0f, 38.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(12.5f, 38.0f);
     glVertex2f(12.5f, 37.5f);
     glVertex2f(13.0f, 37.5f);
     glVertex2f(13.0f, 38.0f);
     glEnd();
 
-
     glPopMatrix();
 }
 void id7005()
-{ // car5
+{                      // car5
     glBegin(GL_QUADS); // body
     glColor3ub(62, 150, 66);
     glVertex2f(46.0f, 25.5f);
@@ -2419,8 +2501,7 @@ void id7005()
     drawWheel(48, 24);
     drawWheel(54, 24);
 
-
-    //headlight
+    // headlight
     glBegin(GL_QUADS);
     if (isNight)
         glColor3ub(255, 240, 150); // night
@@ -2432,7 +2513,7 @@ void id7005()
     glVertex2f(56.0f, 25.0f);
     glEnd();
     glBegin(GL_LINE_LOOP);
-    glColor3ub(0,0,0);
+    glColor3ub(0, 0, 0);
     glVertex2f(55.5f, 25.0f);
     glVertex2f(55.5f, 25.5f);
     glVertex2f(56.0f, 25.5f);
@@ -2440,76 +2521,128 @@ void id7005()
     glEnd();
 }
 
-//animation functions
-void updateCloud9001(int value) { //cloud 1 animation
+// animation functions
+void updateCloud9001(int value)
+{ // cloud 1 animation
     _cloud9001Move += 0.1f;
     if (_cloud9001Move > 160.0f)
         _cloud9001Move = -40.0f;
 }
 
-void updateCloud9002(int value) { //cloud 2 animation
+void updateCloud9002(int value)
+{ // cloud 2 animation
     _cloud9002Move += 0.08f;
     if (_cloud9002Move > 160.0f)
         _cloud9002Move = -50.0f;
 }
 
-void updateCar7001(int value) { //car 1 animation //white van
-    if (trafficLight == 1 || trafficLight == 2) {
+void updateCar7001(int value)
+{ // car 1 animation //white van
+    if (trafficLight == 1 || trafficLight == 2)
+    {
         _car7001Move += 0.15f * speed;
         if (_car7001Move > 80.0f)
             _car7001Move = -30.0f;
     }
 }
 
-void updateCar7002(int value) { //car 2 animation //red van
-    if (trafficLight == 1 || trafficLight == 2) {
+void updateCar7002(int value) // ambulance
+{                             // car 2 animation //red van
+    if (isEmergency)
+    {
+        _car7002Move += 0.25f * speed; // more speed
+        if (_car7002Move > 50.0f)
+            _car7002Move = -70.0f;
+    }
+    else if (trafficLight == 1 || trafficLight == 2)
+    {
         _car7002Move += 0.1f * speed;
         if (_car7002Move > 50.0f)
             _car7002Move = -70.0f;
     }
 }
 
-void updateCar7003(int value) { //car 3 animation //yellow car
-    if (trafficLight == 1 || trafficLight == 2) {
+void updateCar7003(int value)
+{ // car 3 animation //yellow car
+    if (trafficLight == 1 || trafficLight == 2)
+    {
         _car7003Move -= 0.2f * speed;
         if (_car7003Move < -30.0f)
             _car7003Move = 160.0f;
     }
 }
 
-void updateCar7004(int value) { //car 4 animation //blue car
-    if (trafficLight == 1 || trafficLight == 2) {
+void updateCar7004(int value)
+{ // car 4 animation //blue car
+    if (trafficLight == 1 || trafficLight == 2)
+    {
         _car7004Move -= 0.25f * speed;
         if (_car7004Move < -140.0f)
             _car7004Move = 50.0f;
     }
 }
 
-void updateCar7005(int value) { //car 5 animation //green car
-    if (trafficLight == 1 || trafficLight == 2) {
+void updateCar7005(int value)
+{ // car 5 animation //green car
+    if (trafficLight == 1 || trafficLight == 2)
+    {
         _car7005Move += 0.12f * speed;
         if (_car7005Move > 110.0f)
             _car7005Move = -60.0f;
     }
 }
 
-void updateWheel(int value) { //wheel animation
-    if (trafficLight == 1 || trafficLight == 2) {
+void updateWheel(int value)
+{ // wheel animation
+    if (trafficLight == 1 || trafficLight == 2)
+    {
         _wheelAngle += 5.0f;
         if (_wheelAngle > 360.0f)
             _wheelAngle -= 360.0f;
     }
 }
 
-void updatePortal0004(int value) { //portal animation
-    if(!portalSpeed){
+void updatePortal0004(int value)
+{ // portal animation
+    if (!portalSpeed)
+    {
         _portalAngle += 2.0f;
-    }else{
+    }
+    else
+    {
         _portalAngle += 8.0f;
     }
 }
 
+void updateTrafficSgnal6000(int value)
+{
+    static int counter = 0;
+    counter++;
 
+    if (isEmergency)
+    {
+        trafficLight = 0;
+    } // emargency
+    else
+    {
+        if (counter >= 0 && counter < 150)
+        {
+            trafficLight = 2; // green
+        }
+        else if (counter >= 150 && counter < 200)
+        {
+            trafficLight = 1; // yellow
+        }
+        else if (counter >= 200 && counter < 300)
+        {
+            trafficLight = 0; // red
+        }
+        else if (counter >= 300)
+        {
+            counter = 0;
+        }
+    }
+}
 
 void update(int value)
 {
@@ -2522,6 +2655,7 @@ void update(int value)
     updateCar7005(value);
     updateWheel(value);
     updatePortal0004(value);
+    updateTrafficSgnal6000(value);
 
     glutPostRedisplay();
     glutTimerFunc(20, update, 0);
@@ -2547,7 +2681,7 @@ void display()
     // sun or moon
     id0002();
 
-    //stars
+    // stars
     id0009();
 
     // cloud1 id9001
@@ -2592,24 +2726,23 @@ void display()
     id7003();
     glPopMatrix();
 
-    //car3 id7004
+    // car3 id7004
     glPushMatrix();
     glTranslatef(_car7004Move, 0.0f, 0.0f);
     id7004();
     glPopMatrix();
 
-    //car3 id7005
+    // car3 id7005
     glPushMatrix();
     glTranslatef(_car7005Move, 0.0f, 0.0f);
     id7005();
     glPopMatrix();
 
-
     // Footpath
     // top left footpath (left) id1001
     id1001();
 
-    //bench2 id1112
+    // bench2 id1112
     glPushMatrix();
     glTranslatef(-23.0f, 43.0f, 0.0f);
     drawParkBench();
@@ -2621,7 +2754,7 @@ void display()
     // top right footpath (right) id1003
     id1003();
 
-    //bench3 id1113
+    // bench3 id1113
     glPushMatrix();
     glTranslatef(70.0f, 43.0f, 0.0f);
     drawParkBench();
@@ -2654,7 +2787,6 @@ void display()
     // street lights id4002
     id4002();
 
-
     // bottom left area
     // garden / park id0005
     id0005();
@@ -2668,9 +2800,6 @@ void display()
     // building4 id2004
     id2004();
 
-
-
-
     // tree1 id3001
     id3001();
 
@@ -2682,7 +2811,6 @@ void display()
 
     // tree4 id3004
     id3004();
-
 
     // shop id5001
     id5001();
@@ -2719,7 +2847,8 @@ void display()
     id0004();
     glPopMatrix();
 
-
+    // rain
+    drawRain();
 
     glutSwapBuffers();
     glFlush();
@@ -2737,26 +2866,22 @@ void handleKeypress(unsigned char key, int x, int y)
         isNight = false;
         break;
 
-    case 'r': // traffic light red
-        trafficLight = 0;
-        break;
-
-    case 'y': // traffic light yellow
-        trafficLight = 1;
-        break;
-
-    case 'g': // traffic light green
-        trafficLight = 2;
-        break;
-
     case 'p': // portal speed
-        portalSpeed =! portalSpeed;
-        if (portalSpeed){
+        portalSpeed = !portalSpeed;
+        if (portalSpeed)
+        {
             portalScale = 1.1f;
         }
-        else{
+        else
+        {
             portalScale = 1.0f;
         }
+        break;
+    case 'r': // rain
+        isRaining = !isRaining;
+        break;
+    case 'e':
+        isEmergency = !isEmergency;
         break;
     }
 
@@ -2766,17 +2891,18 @@ void handleKeypress(unsigned char key, int x, int y)
 void handleMouse(int button, int state, int x, int y)
 {
     if (button == GLUT_LEFT_BUTTON)
-        {
-            speed += 1.0f;
-        }
-        else if (button == GLUT_RIGHT_BUTTON)
-        {
-            speed -= 1.0f;
-        }
+    {
+        speed += 1.0f;
+    }
+    else if (button == GLUT_RIGHT_BUTTON)
+    {
+        speed -= 1.0f;
+    }
     glutPostRedisplay();
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1650, 900);
